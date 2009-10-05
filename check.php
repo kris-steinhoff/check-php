@@ -17,8 +17,8 @@ function check()
 
     echo '<div class="check" id="check',$id,'">'."\n";
     echo '<div class="checkinfo">checked at ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.';
-    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonplus',$id,'">+</span>',"\n";
-    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonminus',$id,'" style="display: none;">-</span>',"\n";
+    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonplus',$id,'" style="display: '. ( $timer_mode ? 'none' : 'inline' ) .';">+</span>',"\n";
+    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonminus',$id,'" style="display: '. ( $timer_mode ? 'inline' : 'none' ) .';">-</span>',"\n";
     echo '<span class="checktimerbutton" onclick="checkSetStartTime(\'',$id,'\');" id="checktimernutton',$id,'">timer</span>',"\n";
     echo '<span class="checktimercomparebutton" onclick="checkCompareTimes(\'',$id,'\');" id="checktimercomparebutton',$id,'" style="display: none;">compare</span>',"\n";
     echo '</div>',"\n";
@@ -26,7 +26,9 @@ function check()
     echo '<div class="checktimes">',"\n";
     echo '<table>',"\n";
     echo '<tr><th>Page load</th><td>', $time - $CHECK[ 'times' ][0],' ms</td></tr>',"\n";
-    echo '<tr><th>Last check()</th><td>', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' ms</td></tr>',"\n";
+    if ( count( $CHECK[ 'times' ] ) > 1 ) {
+        echo '<tr><th>Last check()</th><td>', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' ms</td></tr>',"\n";
+    }
     echo '</table>',"\n";
     echo '</div>',"\n";
     if ( $timer_mode ) {
