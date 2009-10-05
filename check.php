@@ -8,6 +8,9 @@ function check()
     global $CHECK;
     $id = $CHECK[ 'id' ]++;
     $time = $CHECK[ 'times' ][ $id ] = round(microtime( TRUE ) * 1000);
+    // die( 'args: '. func_num_args() );
+    $timer_mode = func_num_args() < 1;
+
     check_print_media();
 
     $bt = debug_backtrace();
@@ -19,63 +22,41 @@ function check()
     echo '<span class="checktimerbutton" onclick="checkSetStartTime(\'',$id,'\');" id="checktimernutton',$id,'">timer</span>',"\n";
     echo '<span class="checktimercomparebutton" onclick="checkCompareTimes(\'',$id,'\');" id="checktimercomparebutton',$id,'" style="display: none;">compare</span>',"\n";
     echo '</div>',"\n";
-    echo '<div class="checkextra" id="checkextra',$id,'" style="display: none;">',"\n";
+    echo '<div class="checkextra" id="checkextra'.$id.'" style="display: '.( $timer_mode ? 'block' : 'none') .';">',"\n";
     echo '<div class="checktimes">',"\n";
     echo '<table>',"\n";
     echo '<tr><th>Page load</th><td>', $time - $CHECK[ 'times' ][0],' ms</td></tr>',"\n";
     echo '<tr><th>Last check()</th><td>', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' ms</td></tr>',"\n";
     echo '</table>',"\n";
     echo '</div>',"\n";
-    echo '<div class="checkbacktrace">';
-    debug_print_backtrace();
-    echo '</div>',"\n";
-    echo '</div>',"\n";
-    foreach ( func_get_args() as $var ) {
-        echo '<div class="checkcontents">';
-        if ( $var === NULL ) {
-            echo '<em>NULL</em>'."\n";
-        } else if ( $var === TRUE ) {
-            echo '<em>TRUE</em>'."\n";
-        } else if ( $var === FALSE ) {
-            echo '<em>FALSE</em>'."\n";
-        } else if ( is_string( $var )) {
-            if ( empty( $var )) {
-                echo '\''.$var.'\' <em>Empty string</em>'."\n";
-            } else {
-                echo '\''.$var."'\n";
-            }
-        } else {
-            print_r( $var );
-        }
+    if ( $timer_mode ) {
         echo '</div>',"\n";
+    } else {
+        echo '<div class="checkbacktrace">';
+        debug_print_backtrace();
+        echo '</div>',"\n";
+        echo '</div>',"\n";
+        foreach ( func_get_args() as $var ) {
+            echo '<div class="checkcontents">';
+            if ( $var === NULL ) {
+                echo '<em>NULL</em>'."\n";
+            } else if ( $var === TRUE ) {
+                echo '<em>TRUE</em>'."\n";
+            } else if ( $var === FALSE ) {
+                echo '<em>FALSE</em>'."\n";
+            } else if ( is_string( $var )) {
+                if ( empty( $var )) {
+                    echo '\''.$var.'\' <em>Empty string</em>'."\n";
+                } else {
+                    echo '\''.$var."'\n";
+                }
+            } else {
+                print_r( $var );
+            }
+            echo '</div>',"\n";
+        }
     }
     echo '<script type="text/javascript">check_times[', $id, '] = ', $time, ';</script>', "\n";
-    echo '</div>',"\n";
-    echo "\n";
-}
-
-function dump_timer()
-{
-    global $dump_id, $dump_times;
-    $dump_id++;
-    $dump_times[$dump_id] = round(microtime( TRUE ) * 1000);
-    dump_print_media();
-
-    $bt = debug_backtrace();
-    echo '<div class="dump" id="dump',$dump_id,'">'."\n";
-    echo '<div class="dumpinfo">Dumped at ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.';
-    echo '<span class="dumptimerbutton" onclick="dumpSetStartTime(\'',$dump_id,'\');" id="dumptimernutton',$dump_id,'">timer</span>',"\n";
-    echo '<span class="dumptimercomparebutton" onclick="dumpCompareTimes(\'',$dump_id,'\');" id="dumptimercomparebutton',$dump_id,'" style="display: none;">compare</span>',"\n";
-    echo '</div>',"\n";
-    echo '<div class="dumpextra" id="dumpextra',$dump_id,'" style="display: block;">',"\n";
-    echo '<div class="dumptimes">',"\n";
-    echo '<table>',"\n";
-    echo '<tr><th>Page load</th><td>', $dump_times[$dump_id] - $dump_times[0],' ms</td></tr>',"\n";
-    echo '<tr><th>Last dump()</th><td>', $dump_times[$dump_id] - $dump_times[ count( $dump_times ) - 2 ],' ms</td></tr>',"\n";
-    echo '</table>',"\n";
-    echo '</div>',"\n";
-    echo '</div>',"\n";
-    echo '<script type="text/javascript">dump_times[', $dump_id, '] = ', $dump_times[$dump_id], ';</script>', "\n";
     echo '</div>',"\n";
     echo "\n";
 }
