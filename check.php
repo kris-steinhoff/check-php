@@ -1,38 +1,37 @@
 <?php
-global $dump_id, $dump_times, $dump_media_printed;
-$dump_id = 0;
-$dump_times = array( $dump_id => round(microtime( TRUE ) * 1000));
-$dump_media_printed = FALSE;
+$CHECK[ 'id' ] = 0;
+$CHECK[ 'times' ] = array( $CHECK[ 'id' ] => round(microtime( TRUE ) * 1000));
+$CHECK[ 'media_printed' ] = FALSE;
 
-function dump( $var = NULL )
+function check()
 {
-    global $dump_id, $dump_times;
-    $dump_id++;
-    $dump_times[$dump_id] = round(microtime( TRUE ) * 1000);
-    dump_print_media();
+    global $CHECK;
+    $id = $CHECK[ 'id' ]++;
+    $time = $CHECK[ 'times' ][ $id ] = round(microtime( TRUE ) * 1000);
+    check_print_media();
 
     $bt = debug_backtrace();
 
-    echo '<div class="dump" id="dump',$dump_id,'">'."\n";
-    echo '<div class="dumpinfo">Dumped at ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.';
-    echo '<span class="dumptogglebutton" onclick="dumpToggleBacktrace(\'',$dump_id,'\');" id="dumptogglebuttonplus',$dump_id,'">+</span>',"\n";
-    echo '<span class="dumptogglebutton" onclick="dumpToggleBacktrace(\'',$dump_id,'\');" id="dumptogglebuttonminus',$dump_id,'" style="display: none;">-</span>',"\n";
-    echo '<span class="dumptimerbutton" onclick="dumpSetStartTime(\'',$dump_id,'\');" id="dumptimernutton',$dump_id,'">timer</span>',"\n";
-    echo '<span class="dumptimercomparebutton" onclick="dumpCompareTimes(\'',$dump_id,'\');" id="dumptimercomparebutton',$dump_id,'" style="display: none;">compare</span>',"\n";
+    echo '<div class="check" id="check',$id,'">'."\n";
+    echo '<div class="checkinfo">checked at ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.';
+    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonplus',$id,'">+</span>',"\n";
+    echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonminus',$id,'" style="display: none;">-</span>',"\n";
+    echo '<span class="checktimerbutton" onclick="checkSetStartTime(\'',$id,'\');" id="checktimernutton',$id,'">timer</span>',"\n";
+    echo '<span class="checktimercomparebutton" onclick="checkCompareTimes(\'',$id,'\');" id="checktimercomparebutton',$id,'" style="display: none;">compare</span>',"\n";
     echo '</div>',"\n";
-    echo '<div class="dumpextra" id="dumpextra',$dump_id,'" style="display: none;">',"\n";
-    echo '<div class="dumptimes">',"\n";
+    echo '<div class="checkextra" id="checkextra',$id,'" style="display: none;">',"\n";
+    echo '<div class="checktimes">',"\n";
     echo '<table>',"\n";
-    echo '<tr><th>Page load</th><td>', $dump_times[$dump_id] - $dump_times[0],' ms</td></tr>',"\n";
-    echo '<tr><th>Last dump()</th><td>', $dump_times[$dump_id] - $dump_times[ count( $dump_times ) - 2 ],' ms</td></tr>',"\n";
+    echo '<tr><th>Page load</th><td>', $time - $CHECK[ 'times' ][0],' ms</td></tr>',"\n";
+    echo '<tr><th>Last check()</th><td>', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' ms</td></tr>',"\n";
     echo '</table>',"\n";
     echo '</div>',"\n";
-    echo '<div class="dumpbacktrace">';
+    echo '<div class="checkbacktrace">';
     debug_print_backtrace();
     echo '</div>',"\n";
     echo '</div>',"\n";
     foreach ( func_get_args() as $var ) {
-        echo '<div class="dumpcontents">';
+        echo '<div class="checkcontents">';
         if ( $var === NULL ) {
             echo '<em>NULL</em>'."\n";
         } else if ( $var === TRUE ) {
@@ -50,7 +49,7 @@ function dump( $var = NULL )
         }
         echo '</div>',"\n";
     }
-    echo '<script type="text/javascript">dump_times[', $dump_id, '] = ', $dump_times[$dump_id], ';</script>', "\n";
+    echo '<script type="text/javascript">check_times[', $id, '] = ', $time, ';</script>', "\n";
     echo '</div>',"\n";
     echo "\n";
 }
@@ -81,59 +80,59 @@ function dump_timer()
     echo "\n";
 }
 
-function dump_print_media()
+function check_print_media()
 {
-    global $dump_media_printed;
+    global $CHECK;
 
-    if ( ! $dump_media_printed ) {
+    if ( ! $CHECK[ 'media_printed' ] ) {
         ?>
             <style type="text/css">
-            /* style used by dump() */
-            .dump {
+            /* style used by check() */
+            .check {
 border: 1px solid black;
         border-bottom: none;
 margin: 5px;
             }
 
-        .dumpinfo, .dumpcontents, .dumptimes, .dumpbacktrace {
+        .checkinfo, .checkcontents, .checktimes, .checkbacktrace {
 padding: 3px;
          border-bottom: 1px solid black;
         }
 
-        .dumpinfo, .dumpextra {
+        .checkinfo, .checkextra {
 background: #A3BDd2;
             font-size: 13px;
         }
 
-        .dumptimes table th, .dumptimes table td {
+        .checktimes table th, .checktimes table td {
             font-size: 13px;
         }
 
-        .dumptimes table th {
+        .checktimes table th {
             text-align: right;
             font-weight: normal;
         }
 
-        .dumptimes table td {
+        .checktimes table td {
             text-align: right;
             font-family: courier, monospace;
         }
 
-        .dumpbacktrace {
+        .checkbacktrace {
 background: #A3BDd2;
             white-space: pre-wrap;
             font-family: courier, monospace;
             font-size: 11px;
         }
 
-        .dumpcontents {
+        .checkcontents {
 background: #e3eDf2;
             white-space: pre-wrap;
             font-family: courier, monospace;
             font-size: 12px;
         }
 
-        .dumptogglebutton {
+        .checktogglebutton {
 float: right;
        font-family: courier, monospace;
        font-size: 16px;
@@ -141,7 +140,7 @@ float: right;
 cursor: pointer;
         }
 
-        .dumptimerbutton, .dumptimercomparebutton {
+        .checktimerbutton, .checktimercomparebutton {
 float: right;
        margin-right: 5px;
 cursor: pointer;
@@ -149,12 +148,12 @@ cursor: pointer;
         </style>
 
             <script type="text/javascript">
-            // javascript used by dump()
-            function dumpToggleBacktrace( id )
+            // javascript used by check()
+            function checkToggleBacktrace( id )
             {
-                plus = document.getElementById( 'dumptogglebuttonplus' + id );
-                minus = document.getElementById( 'dumptogglebuttonminus' + id );
-                extra = document.getElementById( 'dumpextra' + id );
+                plus = document.getElementById( 'checktogglebuttonplus' + id );
+                minus = document.getElementById( 'checktogglebuttonminus' + id );
+                extra = document.getElementById( 'checkextra' + id );
 
                 if ( extra.style.display == 'none' ) {
                     plus.style.display = 'none';
@@ -169,34 +168,34 @@ cursor: pointer;
 
         var compare_times_start;
         var compare_times_end;
-        function dumpSetStartTime( id )
+        function checkSetStartTime( id )
         {
-            compare_times_start = dump_times[ id ];
-            timers = document.getElementsByClassName( 'dumptimerbutton' );
+            compare_times_start = check_times[ id ];
+            timers = document.getElementsByClassName( 'checktimerbutton' );
             for ( var i = 0; i < timers.length; i++ ) {
                 timers[ i ].style.display = 'none';
             }
-            comps = document.getElementsByClassName( 'dumptimercomparebutton' );
+            comps = document.getElementsByClassName( 'checktimercomparebutton' );
             for ( var i = 0; i < comps.length; i++ ) {
                 comps[ i ].style.display = 'inline';
             }
-            document.getElementById( 'dumptimernutton' + id ).style.display = 'inline';
-            document.getElementById( 'dumptimercomparebutton' + id ).style.display = 'none';
-            document.getElementById( 'dumptimernutton' + id ).style.color = 'red';
+            document.getElementById( 'checktimernutton' + id ).style.display = 'inline';
+            document.getElementById( 'checktimercomparebutton' + id ).style.display = 'none';
+            document.getElementById( 'checktimernutton' + id ).style.color = 'red';
         }
-        function dumpCompareTimes( id )
+        function checkCompareTimes( id )
         {
-            document.getElementById( 'dumptimercomparebutton' + id ).style.color = 'red';
-            compare_times_end = dump_times[ id ];
+            document.getElementById( 'checktimercomparebutton' + id ).style.color = 'red';
+            compare_times_end = check_times[ id ];
             diff = ( compare_times_end - compare_times_start );
             alert( 'Elapsed Time: ' + diff + ' ms'  );
 
-            timers = document.getElementsByClassName( 'dumptimerbutton' );
+            timers = document.getElementsByClassName( 'checktimerbutton' );
             for ( var i = 0; i < timers.length; i++ ) {
                 timers[ i ].style.display = 'inline';
                 timers[ i ].style.color = 'black';
             }
-            comps = document.getElementsByClassName( 'dumptimercomparebutton' );
+            comps = document.getElementsByClassName( 'checktimercomparebutton' );
             for ( var i = 0; i < comps.length; i++ ) {
                 comps[ i ].style.display = 'none';
                 comps[ i ].style.color = 'black';
@@ -204,11 +203,11 @@ cursor: pointer;
 
         }
 
-        var dump_times = new Array();
-        dump_times[0] = <?=$dump_times[0]?>;
+        var check_times = new Array();
+        check_times[0] = <?=$CHECK[ 'times' ][0]?>;
         </script>
             <?
-            $dump_media_printed = TRUE;
+            $CHECK[ 'media_printed' ] = TRUE;
     }
 }
 ?>
