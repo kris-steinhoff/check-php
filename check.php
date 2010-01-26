@@ -189,7 +189,7 @@ cursor: pointer;
             }
 
             var check_times = new Array();
-            check_times[0] = <?=$CHECK[ 'times' ][0]?>;
+            <? /* check_times[0] = <?=@$CHECK[ 'times' ][0]?> */ ?>;
             </script>
                 <?
                 $CHECK[ 'media_printed' ] = TRUE;
