@@ -49,8 +49,8 @@ if ( ! function_exists( 'check' ) and ! function_exists( 'check_print_media' )) 
                 } else if ( $var === FALSE ) {
                     echo '<em>FALSE</em>'."\n";
                 } else if ( is_string( $var )) {
-                    if ( empty( $var )) {
-                        echo '\''.$var.'\' <em>Empty string</em>'."\n";
+                    if ( strlen( $var ) == 0 ) {
+                        echo '\''.$var.'\' <i>Empty string</i>'."\n";
                     } else {
                         echo '\''.$var."'\n";
                     }
