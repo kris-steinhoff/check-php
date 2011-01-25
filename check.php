@@ -15,7 +15,9 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
         }
 
         $CHECK[ 'id' ] = 0;
+        $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'memory' ] = memory_get_usage();
         $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'time' ] = round(microtime( TRUE ) * 1000);
+
 
         $CHECK[ 'mode' ] = $mode;
 
@@ -33,12 +35,18 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
         global $CHECK;
         check_init();
         $id = ++$CHECK[ 'id' ];
+        $memory = $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'memory' ] = memory_get_usage();
         $time = $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'time' ] = round(microtime( TRUE ) * 1000);
 
         $timer_mode = func_num_args() < 1;
+        $is_first_check = count( $CHECK[ 'checks' ] ) <= 2;
 
-        $init_time = $CHECK[ 'checks' ][0][ 'time' ];
-        $last_time = $CHECK[ 'checks' ][ count( $CHECK[ 'checks' ] ) - 2 ][ 'time' ];
+        $init_time_diff = $time - $CHECK[ 'checks' ][0][ 'time' ];
+        $init_mem_diff = $memory - $CHECK[ 'checks' ][0][ 'memory' ];
+        if ( ! $is_first_check ) {
+            $last_time_diff = $time - $last_time = $CHECK[ 'checks' ][ count( $CHECK[ 'checks' ] ) - 2 ][ 'time' ];
+            $last_mem_diff = $memory - $last_time = $CHECK[ 'checks' ][ count( $CHECK[ 'checks' ] ) - 2 ][ 'memory' ];
+        }
 
         $bt = debug_backtrace();
         switch ( $CHECK[ 'mode' ] ) {
@@ -54,9 +62,9 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
             echo '<div class="checkextra" id="checkextra'.$id.'" style="display: '.( $timer_mode ? 'block' : 'none') .';">',"\n";
             echo '<div class="checktimes">',"\n";
             echo '<table>',"\n";
-            echo '<tr><th>check_init()</th><td>', $time - $init_time,' ms</td></tr>',"\n";
-            if ( count( $CHECK[ 'checks' ] ) > 2 ) {
-                echo '<tr><th>Last check()</th><td>', $time - $last_time,' ms</td></tr>',"\n";
+            echo '<tr><th>check_init()</th><td>', $init_time_diff,' ms, '. $init_mem_diff .' bytes</td></tr>',"\n";
+            if ( ! $is_first_check ) {
+                echo '<tr><th>Last check()</th><td>', $last_time_diff,' ms, '. $last_mem_diff .' bytes</td></tr>',"\n";
             }
             echo '</table>',"\n";
             echo '</div>',"\n";
@@ -116,9 +124,9 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
             break;
         case 'text':
             echo 'CHECK ['. $CHECK['id'] .'] ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.'."\n";
-            echo 'check_init(): ', $time - $init_time,' ms',"\n";
-            if ( count( $CHECK[ 'checks' ] ) > 2 ) {
-                echo 'Last check(): ', $time - $last_time,' ms',"\n";
+            echo 'check_init(): ', $init_time_diff,' ms, '. $init_mem_diff .' bytes',"\n";
+            if ( ! $is_first_check ) {
+                echo 'Last check(): ', $last_time_diff,' ms, '. $last_mem_diff .' bytes',"\n";
             }
             echo '-----'."\n";
             foreach ( func_get_args() as $var ) {
