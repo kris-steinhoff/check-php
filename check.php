@@ -1,8 +1,6 @@
 <?php
 if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! function_exists( 'check_print_html_media' )) {
 
-    $CHECK[ 'id' ] = 0;
-    $CHECK[ 'times' ] = array( $CHECK[ 'id' ] => round(microtime( TRUE ) * 1000));
     $CHECK[ 'media_printed' ] = FALSE;
     $CHECK[ 'mode' ] = 'html';
     $CHECK[ 'initialized' ] = FALSE;
@@ -11,9 +9,13 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
     {
         global $CHECK;
 
+
         if ( $CHECK[ 'initialized' ] ) {
             return TRUE;
         }
+
+        $CHECK[ 'id' ] = 0;
+        $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'time' ] = round(microtime( TRUE ) * 1000);
 
         $CHECK[ 'mode' ] = $mode;
 
@@ -29,12 +31,14 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
     function check()
     {
         global $CHECK;
+        check_init();
         $id = ++$CHECK[ 'id' ];
-        $time = $CHECK[ 'times' ][ $id ] = round(microtime( TRUE ) * 1000);
-        // die( 'args: '. func_num_args() );
+        $time = $CHECK[ 'checks' ][ $CHECK[ 'id' ]][ 'time' ] = round(microtime( TRUE ) * 1000);
+
         $timer_mode = func_num_args() < 1;
 
-        check_init();
+        $init_time = $CHECK[ 'checks' ][0][ 'time' ];
+        $last_time = $CHECK[ 'checks' ][ count( $CHECK[ 'checks' ] ) - 2 ][ 'time' ];
 
         $bt = debug_backtrace();
         switch ( $CHECK[ 'mode' ] ) {
@@ -50,9 +54,9 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
             echo '<div class="checkextra" id="checkextra'.$id.'" style="display: '.( $timer_mode ? 'block' : 'none') .';">',"\n";
             echo '<div class="checktimes">',"\n";
             echo '<table>',"\n";
-            echo '<tr><th>Page load</th><td>', $time - $CHECK[ 'times' ][0],' ms</td></tr>',"\n";
-            if ( count( $CHECK[ 'times' ] ) > 1 ) {
-                echo '<tr><th>Last check()</th><td>', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' ms</td></tr>',"\n";
+            echo '<tr><th>check_init()</th><td>', $time - $init_time,' ms</td></tr>',"\n";
+            if ( count( $CHECK[ 'checks' ] ) > 2 ) {
+                echo '<tr><th>Last check()</th><td>', $time - $last_time,' ms</td></tr>',"\n";
             }
             echo '</table>',"\n";
             echo '</div>',"\n";
@@ -111,10 +115,10 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
             echo "\n";
             break;
         case 'text':
-            echo 'CHECK ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.'."\n";
-            echo 'Page load: ', $time - $CHECK[ 'times' ][0],' &#181;s',"\n";
-            if ( count( $CHECK[ 'times' ] ) > 1 ) {
-                echo 'Last check(): ', $time - $CHECK[ 'times' ][ count( $CHECK[ 'times' ] ) - 2 ],' &#181;s',"\n";
+            echo 'CHECK ['. $CHECK['id'] .'] ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.'."\n";
+            echo 'check_init(): ', $time - $init_time,' ms',"\n";
+            if ( count( $CHECK[ 'checks' ] ) > 2 ) {
+                echo 'Last check(): ', $time - $last_time,' ms',"\n";
             }
             echo '-----'."\n";
             foreach ( func_get_args() as $var ) {
@@ -264,7 +268,7 @@ cursor: pointer;
             }
 
             var check_times = new Array();
-            <? /* check_times[0] = <?=@$CHECK[ 'times' ][0]?> */ ?>;
+            check_times[0] = <?=@$CHECK[ 'times' ][0]?>;
             </script>
                 <?
                 $CHECK[ 'media_printed' ] = TRUE;
