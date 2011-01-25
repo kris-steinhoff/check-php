@@ -29,7 +29,7 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
     function check()
     {
         global $CHECK;
-        $id = $CHECK[ 'id' ]++;
+        $id = ++$CHECK[ 'id' ];
         $time = $CHECK[ 'times' ][ $id ] = round(microtime( TRUE ) * 1000);
         // die( 'args: '. func_num_args() );
         $timer_mode = func_num_args() < 1;
