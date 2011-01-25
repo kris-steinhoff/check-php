@@ -56,7 +56,7 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
             echo '<div class="checkinfo">checked at ', basename( $bt[0]['file'] ) ,', line ', $bt[0]['line'] ,'.';
             echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonplus',$id,'" style="display: '. ( $timer_mode ? 'none' : 'inline' ) .';">+</span>',"\n";
             echo '<span class="checktogglebutton" onclick="checkToggleBacktrace(\'',$id,'\');" id="checktogglebuttonminus',$id,'" style="display: '. ( $timer_mode ? 'inline' : 'none' ) .';">-</span>',"\n";
-            echo '<span class="checktimerbutton" onclick="checkSetStartTime(\'',$id,'\');" id="checktimernutton',$id,'">timer</span>',"\n";
+            echo '<span class="checktimerbutton" onclick="checkSetStartTime(\'',$id,'\');" id="checktimernutton',$id,'">diff</span>',"\n";
             echo '<span class="checktimercomparebutton" onclick="checkCompareTimes(\'',$id,'\');" id="checktimercomparebutton',$id,'" style="display: none;">compare</span>',"\n";
             echo '</div>',"\n";
             echo '<div class="checkextra" id="checkextra'.$id.'" style="display: '.( $timer_mode ? 'block' : 'none') .';">',"\n";
@@ -118,7 +118,7 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
                     echo '</div>',"\n";
                 }
             }
-            echo '<script type="text/javascript">check_times[', $id, '] = ', $time, ';</script>', "\n";
+            echo '<script type="text/javascript">checks[', $id, '] = new Array(); checks[', $id, '][\'time\'] = ', $time, '; checks[', $id, '][\'memory\'] = ', $memory, ';</script>', "\n";
             echo '</div>',"\n";
             echo "\n";
             break;
@@ -220,6 +220,7 @@ cursor: pointer;
             </style>
 
                 <script type="text/javascript">
+                console.log( 'checj' );
                 // javascript used by check()
                 function checkToggleBacktrace( id )
                 {
@@ -242,7 +243,8 @@ cursor: pointer;
             var compare_times_end;
             function checkSetStartTime( id )
             {
-                compare_times_start = check_times[ id ];
+                compare_times_start = checks[ id ][ 'time' ];
+                compare_mem_start = checks[ id ][ 'memory' ];
                 timers = document.getElementsByClassName( 'checktimerbutton' );
                 for ( var i = 0; i < timers.length; i++ ) {
                     timers[ i ].style.display = 'none';
@@ -258,9 +260,12 @@ cursor: pointer;
             function checkCompareTimes( id )
             {
                 document.getElementById( 'checktimercomparebutton' + id ).style.color = 'red';
-                compare_times_end = check_times[ id ];
-                diff = ( compare_times_end - compare_times_start );
-                alert( 'Elapsed Time: ' + diff + ' millisecond'+ (( diff != 1 && diff != -1 )  ? 's' : '' ));
+                compare_times_end = checks[ id ][ 'time' ];
+                compare_mem_end = checks[ id ][ 'memory' ];
+                var time_diff = ( compare_times_end - compare_times_start );
+                var mem_diff = ( compare_mem_end - compare_mem_start );
+                var diff_text = 'Elapsed Time: ' + time_diff + ' millisecond'+ (( time_diff != 1 && time_diff != -1 )  ? 's' : '' ) + "\n" + 'Memory Diff: ' + mem_diff + ' byte'+ (( mem_diff != 1 && mem_diff != -1 )  ? 's' : '' );
+                alert( diff_text );
 
                 timers = document.getElementsByClassName( 'checktimerbutton' );
                 for ( var i = 0; i < timers.length; i++ ) {
@@ -275,8 +280,10 @@ cursor: pointer;
 
             }
 
-            var check_times = new Array();
-            check_times[0] = <?=@$CHECK[ 'times' ][0]?>;
+            var checks = new Array();
+            checks[0] = new Array();
+            checks[0][ 'time' ] = <?=@$CHECK[ 'checks' ][0][ 'time' ]?>;
+            checks[0][ 'memory' ] = <?=@$CHECK[ 'checks' ][0][ 'memory' ]?>;
             </script>
                 <?
                 $CHECK[ 'media_printed' ] = TRUE;
