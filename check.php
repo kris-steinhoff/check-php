@@ -74,7 +74,7 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
                 echo '<div class="checkbacktrace">';
                 $parsed_backtrace ='';
                 $show_args = FALSE;
-                $offset = 1;
+                $offset = 0;
                 for ($i=$offset; $i< count( $bt ); $i++) {
                     $parsed_backtrace .= '#'.($i-$offset).' ';
                     if ( isset( $bt[ $i ][ 'file' ] )) {
