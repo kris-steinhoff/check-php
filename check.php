@@ -110,7 +110,7 @@ if ( ! function_exists( 'check_init' ) and ! function_exists( 'check' ) and ! fu
                         if ( strlen( $var ) == 0 ) {
                             echo '\''.$var.'\' <i>Empty string</i>'."\n";
                         } else {
-                            echo '\''.$var."'\n";
+                            echo '\''.htmlentities($var)."'\n";
                         }
                     } else {
                         print_r( $var );
